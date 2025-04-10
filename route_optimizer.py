@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import math
+import os
 
 
 # Handles route optimization using Nearest Neighbor
@@ -101,5 +102,9 @@ class RouteOptimizer:
         plt.ylabel('Y Coordinate')
         
         # Save the figure
-        plt.savefig(f"truck_{truck.id}_route.png")
+        current_file_path = os.path.dirname(os.path.abspath(__file__))
+        data_folder = os.path.join(current_file_path, "data")
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+        plt.savefig(os.path.join(data_folder, f"truck_{truck.id}_route.png"))
         plt.close()
