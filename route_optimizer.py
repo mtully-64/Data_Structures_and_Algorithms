@@ -1,36 +1,50 @@
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import math
 import os
+from package import Package  # For type hinting
 
-
-# Handles route optimization using Nearest Neighbor
 
 class RouteOptimizer:
-    def __init__(self, warehouse=(0, 0)):
-        self.warehouse = warehouse
+    """
+    Handles route optimization for delivery trucks
+    """
     
-    # Calculate distance between two points
+    def __init__(self, warehouse=(0, 0)):
+        self.warehouse = warehouse # coordinates of the warehouse where packages are loaded
+    
     def calc_distance(self, p1, p2):
+        """
+        Calculate Euclidean distance between two points
+           --> p1 and p2 are tuples (x, y) of coordinates
+        """
         return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
     
-    # Find optimal route using greedy nearest neighbor
-    def find_best_route(self, package_ids, packages_dict):
+    
+    
+    def find_best_route(self, package_ids: list, packages_dict: dict[Package]) -> list[int]:
+        """
+        Find the best route for a truck to deliver packages using a greedy nearest neighbor approach
+        
+        :return: List of package IDs in the order they should be delivered
+        """
         if not package_ids:
             return []
         
-        # Start from warehouse
-        current_pos = self.warehouse
-        packages_to_visit = list(package_ids)  # make a copy
+        # Initialize variables
+        current_pos: tuple[int, int] = self.warehouse # Start from warehouse
+        packages_to_visit = package_ids.copy()  # Copy to avoid modifying the original list
         route = []
         
         # Keep finding closest unvisited package
         while packages_to_visit:
+            
             # Find closest package
             min_dist = float('inf')
             closest_idx = -1
             
             for i, pkg_id in enumerate(packages_to_visit):
-                package = packages_dict[pkg_id]
+                package : Package = packages_dict[pkg_id]
                 dist = self.calc_distance(current_pos, package.coordinates)
                 
                 if dist < min_dist:
@@ -42,15 +56,19 @@ class RouteOptimizer:
             route.append(next_pkg_id)
             
             # Update position
-            current_pos = packages_dict[next_pkg_id].coordinates
+            current_pos: tuple[int, int] = packages_dict[next_pkg_id].coordinates
         
         return route
     
+    
+    
+    
     # Visualize delivery route
     def make_route_map(self, truck, packages_dict):
+        
         plt.figure(figsize=(10, 8))
         
-        # Plot warehouse
+        # Plot warehouse --> coordinates (x, y)
         plt.plot(self.warehouse[0], self.warehouse[1], 'ks', markersize=10, label='Warehouse')
         
         # Create route coordinates
@@ -67,7 +85,7 @@ class RouteOptimizer:
             y_coords.append(y)
             
             # Different markers for priority
-            if package.priority == 'High':
+            if package.priority_label == 'High':
                 plt.plot(x, y, 'ro', markersize=8)
             else:
                 plt.plot(x, y, 'bo', markersize=8)
@@ -86,7 +104,6 @@ class RouteOptimizer:
         plt.title(f"Delivery Route - Truck {truck.id}")
         
         # Create custom legend
-        from matplotlib.lines import Line2D
         legend_elements = [
             Line2D([0], [0], marker='o', color='r', label='High Priority', markersize=8, linestyle=''),
             Line2D([0], [0], marker='o', color='b', label='Normal Priority', markersize=8, linestyle=''),
@@ -104,6 +121,7 @@ class RouteOptimizer:
         # Save the figure
         current_file_path = os.path.dirname(os.path.abspath(__file__))
         data_folder = os.path.join(current_file_path, "data")
+        
         if not os.path.exists(data_folder):
             os.makedirs(data_folder)
         plt.savefig(os.path.join(data_folder, f"truck_{truck.id}_route.png"))
