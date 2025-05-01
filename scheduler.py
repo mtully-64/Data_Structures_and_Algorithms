@@ -4,6 +4,9 @@ from package import Package # This is only for type hinting
 class Scheduler:
     """
     Class to manage the scheduling of packages using a priority queue
+    
+    Source:
+        - https://docs.python.org/3/library/heapq.html
     """
 
     def __init__(self):

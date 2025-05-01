@@ -63,8 +63,16 @@ class RouteOptimizer:
     
     
     
-    # Visualize delivery route
     def make_route_map(self, truck, packages_dict):
+        """
+        Method to create a route map for the truck
+        
+        Sources:
+            - https://stackoverflow.com/questions/70421292/how-to-plot-routes-in-python
+            - https://stackoverflow.com/questions/64846099/how-to-label-these-points-on-the-scatter-plot
+            - https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend
+            
+        """
         
         plt.figure(figsize=(10, 8))
         
