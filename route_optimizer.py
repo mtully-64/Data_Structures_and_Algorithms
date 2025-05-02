@@ -10,8 +10,9 @@ class RouteOptimizer:
     Handles route optimization for delivery trucks
     """
     
-    def __init__(self, warehouse=(0, 0)):
+    def __init__(self, warehouse=(0, 0), data_folder_name="data"):
         self.warehouse = warehouse # coordinates of the warehouse where packages are loaded
+        self.data_folder_name = data_folder_name
     
     def calc_distance(self, p1, p2):
         """
@@ -93,7 +94,7 @@ class RouteOptimizer:
             y_coords.append(y)
             
             # Different markers for priority
-            if package.priority_label == 'High':
+            if package._initial_priotiy_label == 'High':
                 plt.plot(x, y, 'ro', markersize=8)
             else:
                 plt.plot(x, y, 'bo', markersize=8)
@@ -128,7 +129,7 @@ class RouteOptimizer:
         
         # Save the figure
         current_file_path = os.path.dirname(os.path.abspath(__file__))
-        data_folder = os.path.join(current_file_path, "data")
+        data_folder = os.path.join(current_file_path, self.data_folder_name)
         
         if not os.path.exists(data_folder):
             os.makedirs(data_folder)

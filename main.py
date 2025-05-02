@@ -51,31 +51,107 @@ def print_package_info(packages: dict[Package]) -> None:
 
 
 
-def create_trucks(warehouse: tuple[int, int]) -> tuple[Truck, Truck]:
+def create_trucks(
+    warehouse: tuple[int, int],
+    capacity1: int=100,
+    capacity2: int=100,
+    ) -> tuple[Truck, Truck]:
     """
     Create two trucks form the same warehouse, one for high-priority and one for normal packages
     """
     
-    truck1: Truck = Truck(1, 150, "High-priority", warehouse)
-    truck2: Truck = Truck(2, 100, "Normal", warehouse)
+    truck1: Truck = Truck(1, capacity1, "High-priority", warehouse)
+    truck2: Truck = Truck(2, capacity2, "Normal", warehouse)
     
     return truck1, truck2
 
 
 
-def run_simulation():
+
+def run_scenario_1():
+    """
+    In this scenario Truck1 can't have capacity for all high priority package, 
+        so some of the high priority packages overflow to Truck2
+    """
+    
+    print("\n\n---------------------")
+    print("\n\n--- Running Scenario 1 ---")
+    print("Truck1 can't handle all high-priority packages, some overflow to Truck2\n\n")
+    
+    random.seed(13)
+    
+    packages = generate_packages(60)
+    truck1, truck2 = create_trucks((150, 40))
+    data_folder_name = "scenario_1"
+    run_simulation(packages, truck1, truck2, data_folder_name)
+    
+
+
+def run_scenario_2():
+    """
+    In this scenario, both Trucks can handle all the priority packages they were assigned, there are no overflows
+        - Truck1 handles all high-priority packages
+        - Truck2 handles all normal priority packages
+    """
+    
+    print("\n\n---------------------")
+    print("\n\n--- Running Scenario 2 ---")
+    print("Truck1 handles all high-priority packages, Truck2 handles all normal priority packages\n\n")
+    
+    
+    random.seed(13)
+    
+    packages = generate_packages(20)
+    truck1, truck2 = create_trucks((40, 90))
+    data_folder_name = "scenario_2"
+    run_simulation(packages, truck1, truck2, data_folder_name)
+    
+
+
+def run_scenario_3():
+    """
+    In this scenario Truck2 does not have enough capacity for all normall prioirty packages, 
+        so some of the packages normall prioirty overflow to Truck1 after the aging mechanism increases their priority
+    """
+    
+    print("\n\n---------------------")
+    print("\n\n--- Running Scenario 3 ---")
+    print("Truck2 doesn't have enough capacity for all normal-priority packages, some overflow to Truck1 after aging\n\n")
+    
+    
+    random.seed(13)
+    
+    packages = generate_packages(30)
+    truck1, truck2 = create_trucks((90, 90))
+    data_folder_name = "scenario_3"
+    run_simulation(packages, truck1, truck2, data_folder_name)
+
+    
+    
+    
+
+
+
+def run_simulation(packages: dict[Package] = None,
+                   truck1: Truck = None,
+                   truck2: Truck = None,
+                   data_folder_name = "data"
+                   ) -> None:
     
     random.seed(13) # For reproducibility
     warehouse = (5, 5) # Warehouse coordinates 
     
-    packages = generate_packages(33)
-    truck1, truck2 = create_trucks(warehouse)
+    if packages is None:
+        packages = generate_packages(20)
+    
+    if truck1 is None or truck2 is None:
+        truck1, truck2 = create_trucks(warehouse)
 
     scheduler = Scheduler()
     for package in packages.values():
         scheduler.add(package)
 
-    optimizer = RouteOptimizer(warehouse)
+    optimizer = RouteOptimizer(warehouse, data_folder_name)
     
     loader = Loader(truck1, truck2, optimizer)
     loader.assign_packages(scheduler, packages)
@@ -92,8 +168,16 @@ def run_simulation():
     print("Route visualizations saved as 'truck_1_route.png' and 'truck_2_route.png'")
     print("\nLogistics system simulation complete!\n\n")
 
+
+
 if __name__ == "__main__":
-    run_simulation()
+    
+    # Run the scenarios
+    run_scenario_1()
+    run_scenario_2()
+    run_scenario_3()
+
+
     
     
 
